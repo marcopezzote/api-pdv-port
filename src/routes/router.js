@@ -5,6 +5,7 @@ const register = require("../controller/users/post_register");
 const loginUser = require("../controller/users/get_login");
 const getUser = require("../controller/users/get_user");
 const updateUser = require("../controller/users/put_updateUser");
+const healthRouter = require("./health");
 const { createProduct } = require("../controller/products/post_product");
 const { updateProduct } = require("../controller/products/put_product");
 const { getProducts } = require("../controller/products/get_product");
@@ -21,6 +22,16 @@ const {
   checkProductOrder,
   deleteProductImage,
 } = require("../middleware/productMiddlewares");
+const {
+  validateUser,
+  validateLogin,
+  validateUserUpdate,
+  validateClient,
+  validateClientUpdate,
+  validateProduct,
+  validateProductUpdate,
+  validateOrder
+} = require("../validations/validate");
 
 const multer = require("multer");
 const registerOrder = require("../controller/orders/post_order");
@@ -29,14 +40,20 @@ const upload = multer();
 
 const router = express();
 
-router.post("/usuario", register);
-router.post("/login", loginUser);
+// Rota de health check - útil para monitoramento
+router.use("/health", healthRouter);
 
+// Rotas públicas
+router.post("/usuario", validateUser, register);
+router.post("/login", validateLogin, loginUser);
+
+// Middleware de autenticação para rotas protegidas
 router.use(authenticateUser);
 
-router.post("/cliente", registerClient);
-router.post("/pedido", registerOrder);
-router.post("/produto", uploadFile, createProduct);
+// Rotas protegidas
+router.post("/cliente", validateClient, registerClient);
+router.post("/pedido", validateOrder, registerOrder);
+router.post("/produto", uploadFile, validateProduct, createProduct);
 
 router.get("/usuario", getUser);
 router.get("/categoria", getList);
@@ -46,9 +63,9 @@ router.get("/produto/:id", getProductById);
 router.get("/produto", getProducts);
 router.get("/pedido", orderList);
 
-router.put("/usuario", updateUser);
-router.put("/cliente/:id", updateClient);
-router.put("/produto/:id", uploadFile, updateProduct);
+router.put("/usuario", validateUserUpdate, updateUser);
+router.put("/cliente/:id", validateClientUpdate, updateClient);
+router.put("/produto/:id", uploadFile, validateProductUpdate, updateProduct);
 
 router.delete(
   "/produto/:id",
