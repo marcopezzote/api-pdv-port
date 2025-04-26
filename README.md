@@ -99,9 +99,9 @@ http://localhost:3000/api-docs
 
 ## 👨‍💻 Autor
 
-- Nome: Seu Nome
-- LinkedIn: [Seu Perfil](https://linkedin.com/in/seu-perfil)
-- GitHub: [Seu GitHub](https://github.com/seu-usuario)
+- Nome: Marco Pezzote
+- LinkedIn: [Seu Perfil](https://linkedin.com/in/marcopezzote)
+- GitHub: [Seu GitHub](https://github.com/marcopezzote)
 
 ## 📄 Licença
 
