@@ -1,0 +1,45 @@
+# Dependências
+node_modules/
+.npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Arquivos de ambiente
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Arquivos de log
+logs
+*.log
+
+# Diretórios de build
+dist/
+build/
+out/
+
+# Arquivos temporários
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+.tmp/
+temp/
+
+# Arquivos de uploads (exceto os de exemplo)
+uploads/*
+!uploads/caneta-azul.jpg
+!uploads/note.jpeg
+
+# Arquivos de cobertura de testes
+coverage/
+.nyc_output/
+
+# Arquivos de cache
+.eslintcache
+.cache/
+node_modules
