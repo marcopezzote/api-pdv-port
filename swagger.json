@@ -1,683 +1,1157 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "Documenta\u00e7\u00e3o da API do Projeto T15",
-    "description": "Bem-vindos \u00e0 documenta\u00e7\u00e3o da API do Projeto T15! Este projeto foi desenvolvido com o intuito de fornecer uma solu\u00e7\u00e3o robusta e escal\u00e1vel para gerenciamento de produtos, clientes e pedidos. Nesta documenta\u00e7\u00e3o, voc\u00ea encontrar\u00e1 todas as informa\u00e7\u00f5es necess\u00e1rias para utilizar as nossas APIs de forma eficiente, incluindo exemplos detalhados de requisi\u00e7\u00f5es e respostas.\n\n### Equipe de Desenvolvimento\n- **Desenvolvedores:** Marco, Gabriel, Fernando, Claudio Lins, Rodrigo, João\n\n### Agradecimentos\nAgradecemos a todos que contribu\u00edram para a realiza\u00e7\u00e3o deste projeto, em especial ao Maroquinho e à Mandis pelo suporte e orienta\u00e7\u00e3o.",
-    "version": "1.0.0"
+    "title": "API PDV - Sistema de Ponto de Venda",
+    "description": "# Documentação da API PDV (Ponto de Venda)\n\nEsta API fornece endpoints para gerenciamento completo de um sistema de Ponto de Venda,\nincluindo administração de usuários, produtos, clientes, pedidos e categorias.\n\n## Autenticação\n\nA maioria dos endpoints requer autenticação usando um token JWT.\nPara obter um token, faça uma requisição para o endpoint `/login`.\n\nPara endpoints protegidos, inclua o token no cabeçalho da requisição:\n```\nAuthorization: Bearer seu_token_aqui\n```\n\n## Padrões de Resposta\n\n* **200 (OK)** - Requisição bem sucedida\n* **201 (Created)** - Recurso criado com sucesso\n* **400 (Bad Request)** - Dados inválidos ou campos faltando\n* **401 (Unauthorized)** - Token ausente ou inválido\n* **404 (Not Found)** - Recurso não encontrado\n* **500 (Internal Server Error)** - Erro no servidor\n\n## Formatos\n\n* Valores monetários são representados em centavos (ex: R$ 10,90 = 1090)\n* Datas são representadas no formato ISO 8601\n* CPF pode ser formatado (123.456.789-00) ou não (12345678900)",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Marco Pezzote",
+      "url": "https://github.com/marcopezzote",
+      "email": "marco@exemplo.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
   },
-  "host": "desafio-final-backend-t15-tfoj.onrender.com",
+  "host": "localhost:3000",
   "basePath": "/",
-  "schemes": ["https"],
+  "schemes": ["http", "https"],
+  "securityDefinitions": {
+    "bearerAuth": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "Authorization",
+      "description": "Insira o token JWT precedido de \"Bearer \" (ex: Bearer seu_token_aqui)"
+    }
+  },
+  "tags": [
+    {
+      "name": "Autenticação",
+      "description": "Endpoints para autenticação e gerenciamento de usuários"
+    },
+    {
+      "name": "Produtos",
+      "description": "Endpoints para gerenciamento de produtos"
+    },
+    {
+      "name": "Clientes",
+      "description": "Endpoints para gerenciamento de clientes"
+    },
+    {
+      "name": "Pedidos",
+      "description": "Endpoints para gerenciamento de pedidos"
+    },
+    {
+      "name": "Categorias",
+      "description": "Endpoints para gerenciamento de categorias"
+    },
+    {
+      "name": "Sistema",
+      "description": "Endpoints para monitoramento e diagnóstico do sistema"
+    }
+  ],
   "paths": {
     "/usuario": {
       "post": {
-        "summary": "Cria um novo usu\u00e1rio",
-        "description": "Endpoint para criar um novo usu\u00e1rio.",
+        "tags": ["Autenticação"],
+        "summary": "Cadastrar novo usuário",
+        "description": "Cria um novo usuário no sistema.",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "nome": {
-                  "type": "string",
-                  "example": "Sidcley"
-                },
-                "email": {
-                  "type": "string",
-                  "example": "sid@cley.com"
-                },
-                "senha": {
-                  "type": "string",
-                  "example": "senha123"
-                }
-              }
+              "$ref": "#/definitions/Usuario"
             }
           }
         ],
         "responses": {
           "201": {
-            "description": "Usu\u00e1rio criado com sucesso"
+            "description": "Usuário criado com sucesso",
+            "schema": {
+              "$ref": "#/definitions/UsuarioResponse"
+            }
           },
           "400": {
-            "description": "Erro na requisi\u00e7\u00e3o"
+            "description": "Dados inválidos",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           },
-          "500": {
-            "description": "Erro interno do servidor"
+          "409": {
+            "description": "Email já cadastrado",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           }
         }
       },
       "get": {
-        "summary": "Obt\u00e9m os usu\u00e1rios",
-        "description": "Endpoint para obter a lista de usu\u00e1rios.",
-        "parameters": [
+        "tags": ["Autenticação"],
+        "summary": "Obter dados do usuário logado",
+        "description": "Retorna os dados do usuário autenticado.",
+        "security": [
           {
-            "name": "authorization",
-            "in": "header",
-            "type": "string",
-            "required": true,
-            "description": "Token JWT para autentica\u00e7\u00e3o"
+            "bearerAuth": []
           }
         ],
         "responses": {
           "200": {
-            "description": "Lista de usu\u00e1rios obtida com sucesso"
+            "description": "Dados do usuário",
+            "schema": {
+              "$ref": "#/definitions/UsuarioResponse"
+            }
           },
           "401": {
-            "description": "N\u00e3o autorizado"
-          },
-          "500": {
-            "description": "Erro interno do servidor"
+            "description": "Não autorizado",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           }
         }
       },
       "put": {
-        "summary": "Atualiza um usu\u00e1rio",
-        "description": "Endpoint para atualizar os dados de um usu\u00e1rio.",
-        "parameters": [
+        "tags": ["Autenticação"],
+        "summary": "Atualizar dados do usuário",
+        "description": "Atualiza os dados do usuário autenticado.",
+        "security": [
           {
-            "name": "authorization",
-            "in": "header",
-            "type": "string",
-            "required": true,
-            "description": "Token JWT para autentica\u00e7\u00e3o"
-          },
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "nome": {
-                  "type": "string",
-                  "example": "Sidcley"
-                },
-                "email": {
-                  "type": "string",
-                  "example": "sid@cley.com"
-                },
-                "senha": {
-                  "type": "string",
-                  "example": "senha123"
-                }
-              }
+              "$ref": "#/definitions/UsuarioUpdate"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Usu\u00e1rio atualizado com sucesso"
+            "description": "Usuário atualizado com sucesso",
+            "schema": {
+              "$ref": "#/definitions/UsuarioResponse"
+            }
           },
           "400": {
-            "description": "Erro na requisi\u00e7\u00e3o"
+            "description": "Dados inválidos",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           },
           "401": {
-            "description": "N\u00e3o autorizado"
+            "description": "Não autorizado",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           },
-          "404": {
-            "description": "Usu\u00e1rio n\u00e3o encontrado"
-          },
-          "500": {
-            "description": "Erro interno do servidor"
+          "409": {
+            "description": "Email já cadastrado",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           }
         }
       }
     },
     "/login": {
       "post": {
-        "summary": "Autentica um usu\u00e1rio",
-        "description": "Endpoint para autenticar um usu\u00e1rio.",
+        "tags": ["Autenticação"],
+        "summary": "Realizar login",
+        "description": "Autentica o usuário e retorna um token JWT.",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "email": {
-                  "type": "string",
-                  "example": "sid@cley.com"
-                },
-                "senha": {
-                  "type": "string",
-                  "example": "senha123"
-                }
-              }
+              "$ref": "#/definitions/Login"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Autentica\u00e7\u00e3o bem-sucedida"
-          },
-          "400": {
-            "description": "Erro na requisi\u00e7\u00e3o"
-          },
-          "401": {
-            "description": "N\u00e3o autorizado"
-          },
-          "500": {
-            "description": "Erro interno do servidor"
-          }
-        }
-      }
-    },
-    "/cliente": {
-      "post": {
-        "summary": "Cria um novo cliente",
-        "description": "Endpoint para criar um novo cliente.",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string",
-            "required": true,
-            "description": "Token JWT para autentica\u00e7\u00e3o"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
+            "description": "Login bem sucedido",
             "schema": {
-              "type": "object",
-              "properties": {
-                "nome": {
-                  "type": "string",
-                  "example": "Cliente"
-                },
-                "email": {
-                  "type": "string",
-                  "example": "cliente@exemplo.com"
-                },
-                "cpf": {
-                  "type": "string",
-                  "example": "12345678901"
-                },
-                "cep": {
-                  "type": "string",
-                  "example": "12345678"
-                },
-                "rua": {
-                  "type": "string",
-                  "example": "Rua Exemplo"
-                },
-                "numero": {
-                  "type": "string",
-                  "example": "123"
-                },
-                "bairro": {
-                  "type": "string",
-                  "example": "Bairro Exemplo"
-                },
-                "cidade": {
-                  "type": "string",
-                  "example": "Cidade Exemplo"
-                },
-                "estado": {
-                  "type": "string",
-                  "example": "EX"
-                }
-              }
+              "$ref": "#/definitions/LoginResponse"
             }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Cliente criado com sucesso"
           },
           "400": {
-            "description": "Erro na requisi\u00e7\u00e3o"
-          },
-          "401": {
-            "description": "N\u00e3o autorizado"
-          },
-          "404": {
-            "description": "Cliente n\u00e3o encontrado"
-          },
-          "500": {
-            "description": "Erro interno do servidor"
-          }
-        }
-      }
-    },
-    "/pedido": {
-      "post": {
-        "summary": "Cria um novo pedido",
-        "description": "Endpoint para criar um novo pedido.",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string",
-            "required": true,
-            "description": "Token JWT para autentica\u00e7\u00e3o"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
+            "description": "Dados inválidos",
             "schema": {
-              "type": "object",
-              "properties": {
-                "cliente_id": {
-                  "type": "integer",
-                  "example": 1
-                },
-                "observacao": {
-                  "type": "string",
-                  "example": "Observa\u00e7\u00e3o do pedido"
-                },
-                "pedido_produtos": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "produto_id": {
-                        "type": "integer",
-                        "example": 1
-                      },
-                      "quantidade": {
-                        "type": "integer",
-                        "example": 2
-                      }
-                    }
-                  }
-                }
-              }
+              "$ref": "#/definitions/Error"
             }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Pedido criado com sucesso"
-          },
-          "400": {
-            "description": "Erro na requisi\u00e7\u00e3o"
           },
           "401": {
-            "description": "N\u00e3o autorizado"
-          },
-          "404": {
-            "description": "Cliente n\u00e3o encontrado"
-          },
-          "500": {
-            "description": "Erro interno do servidor"
-          }
-        }
-      },
-      "get": {
-        "summary": "Obt\u00e9m os pedidos",
-        "description": "Endpoint para obter a lista de pedidos.",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string",
-            "required": true,
-            "description": "Token JWT para autentica\u00e7\u00e3o"
-          },
-          {
-            "name": "cliente_id",
-            "in": "query",
-            "type": "integer",
-            "description": "ID do cliente"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Lista de pedidos obtida com sucesso"
-          },
-          "401": {
-            "description": "N\u00e3o autorizado"
-          },
-          "404": {
-            "description": "Pedidos n\u00e3o encontrados"
-          },
-          "500": {
-            "description": "Erro interno do servidor"
-          }
-        }
-      }
-    },
-    "/cliente/{id}": {
-      "get": {
-        "summary": "Obt\u00e9m um cliente pelo ID",
-        "description": "Endpoint para obter um cliente pelo ID.",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string",
-            "description": "ID do cliente"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string",
-            "required": true,
-            "description": "Token JWT para autentica\u00e7\u00e3o"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Cliente obtido com sucesso"
-          },
-          "401": {
-            "description": "N\u00e3o autorizado"
-          },
-          "404": {
-            "description": "Cliente n\u00e3o encontrado"
-          },
-          "500": {
-            "description": "Erro interno do servidor"
-          }
-        }
-      }
-    },
-    "/produto/{id}": {
-      "get": {
-        "summary": "Obt\u00e9m um produto pelo ID",
-        "description": "Endpoint para obter um produto pelo ID.",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string",
-            "description": "ID do produto"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string",
-            "required": true,
-            "description": "Token JWT para autentica\u00e7\u00e3o"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Produto obtido com sucesso"
-          },
-          "401": {
-            "description": "N\u00e3o autorizado"
-          },
-          "404": {
-            "description": "Produto n\u00e3o encontrado"
-          },
-          "500": {
-            "description": "Erro interno do servidor"
-          }
-        }
-      },
-      "put": {
-        "summary": "Atualiza um produto",
-        "description": "Endpoint para atualizar os dados de um produto.",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string",
-            "description": "ID do produto"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string",
-            "required": true,
-            "description": "Token JWT para autentica\u00e7\u00e3o"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
+            "description": "Email ou senha inválidos",
             "schema": {
-              "type": "object",
-              "properties": {
-                "produto_imagem": {
-                  "type": "string",
-                  "example": "imagem.png"
-                },
-                "descricao": {
-                  "type": "string",
-                  "example": "Descri\u00e7\u00e3o do produto"
-                },
-                "quantidade_estoque": {
-                  "type": "integer",
-                  "example": 10
-                },
-                "valor": {
-                  "type": "number",
-                  "example": 100.0
-                },
-                "categoria_id": {
-                  "type": "integer",
-                  "example": 1
-                }
-              }
+              "$ref": "#/definitions/Error"
             }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Produto atualizado com sucesso"
-          },
-          "400": {
-            "description": "Erro na requisi\u00e7\u00e3o"
-          },
-          "401": {
-            "description": "N\u00e3o autorizado"
-          },
-          "404": {
-            "description": "Produto n\u00e3o encontrado"
-          },
-          "500": {
-            "description": "Erro interno do servidor"
-          }
-        }
-      },
-      "delete": {
-        "summary": "Exclui um produto",
-        "description": "Endpoint para excluir um produto.",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string",
-            "description": "ID do produto"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string",
-            "required": true,
-            "description": "Token JWT para autentica\u00e7\u00e3o"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Produto exclu\u00eddo com sucesso"
-          },
-          "400": {
-            "description": "Erro na requisi\u00e7\u00e3o"
-          },
-          "401": {
-            "description": "N\u00e3o autorizado"
-          },
-          "404": {
-            "description": "Produto n\u00e3o encontrado"
-          },
-          "500": {
-            "description": "Erro interno do servidor"
-          }
-        }
-      }
-    },
-    "/categoria": {
-      "get": {
-        "summary": "Obt\u00e9m categorias",
-        "description": "Endpoint para obter a lista de categorias.",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string",
-            "required": true,
-            "description": "Token JWT para autentica\u00e7\u00e3o"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Lista de categorias obtida com sucesso"
-          },
-          "401": {
-            "description": "N\u00e3o autorizado"
-          },
-          "500": {
-            "description": "Erro interno do servidor"
           }
         }
       }
     },
     "/produto": {
       "get": {
-        "summary": "Obt\u00e9m produtos",
-        "description": "Endpoint para obter a lista de produtos.",
-        "parameters": [
+        "tags": ["Produtos"],
+        "summary": "Listar produtos",
+        "description": "Retorna todos os produtos cadastrados.",
+        "security": [
           {
-            "name": "authorization",
-            "in": "header",
-            "type": "string",
-            "required": true,
-            "description": "Token JWT para autentica\u00e7\u00e3o"
-          },
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
           {
             "name": "categoria_id",
             "in": "query",
-            "type": "integer",
-            "description": "ID da categoria"
+            "description": "Filtrar por categoria",
+            "type": "integer"
           }
         ],
         "responses": {
           "200": {
-            "description": "Lista de produtos obtida com sucesso"
-          },
-          "400": {
-            "description": "Erro na requisi\u00e7\u00e3o"
+            "description": "Lista de produtos",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Produto"
+              }
+            }
           },
           "401": {
-            "description": "N\u00e3o autorizado"
-          },
-          "500": {
-            "description": "Erro interno do servidor"
+            "description": "Não autorizado",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           }
         }
       },
       "post": {
-        "summary": "Cria um novo produto",
-        "description": "Endpoint para criar um novo produto.",
+        "tags": ["Produtos"],
+        "summary": "Cadastrar produto",
+        "description": "Cria um novo produto com imagem.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "consumes": ["multipart/form-data"],
         "parameters": [
           {
-            "name": "authorization",
-            "in": "header",
-            "type": "string",
+            "name": "descricao",
+            "in": "formData",
             "required": true,
-            "description": "Token JWT para autentica\u00e7\u00e3o"
+            "type": "string",
+            "description": "Nome/descrição do produto"
+          },
+          {
+            "name": "quantidade_estoque",
+            "in": "formData",
+            "required": true,
+            "type": "integer",
+            "description": "Quantidade em estoque"
+          },
+          {
+            "name": "valor",
+            "in": "formData",
+            "required": true,
+            "type": "integer",
+            "description": "Valor em centavos (ex: 1990 para R$ 19,90)"
+          },
+          {
+            "name": "categoria_id",
+            "in": "formData",
+            "required": true,
+            "type": "integer",
+            "description": "ID da categoria"
+          },
+          {
+            "name": "produto_imagem",
+            "in": "formData",
+            "required": true,
+            "type": "file",
+            "description": "Imagem do produto"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Produto criado com sucesso",
+            "schema": {
+              "$ref": "#/definitions/Produto"
+            }
+          },
+          "400": {
+            "description": "Dados inválidos ou imagem não enviada",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Não autorizado",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/produto/{id}": {
+      "get": {
+        "tags": ["Produtos"],
+        "summary": "Detalhes do produto",
+        "description": "Retorna os detalhes de um produto específico.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID do produto"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalhes do produto",
+            "schema": {
+              "$ref": "#/definitions/Produto"
+            }
+          },
+          "401": {
+            "description": "Não autorizado",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Produto não encontrado",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Produtos"],
+        "summary": "Atualizar produto",
+        "description": "Atualiza os dados de um produto específico.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "consumes": ["multipart/form-data"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID do produto"
+          },
+          {
+            "name": "descricao",
+            "in": "formData",
+            "type": "string",
+            "description": "Nome/descrição do produto"
+          },
+          {
+            "name": "quantidade_estoque",
+            "in": "formData",
+            "type": "integer",
+            "description": "Quantidade em estoque"
+          },
+          {
+            "name": "valor",
+            "in": "formData",
+            "type": "integer",
+            "description": "Valor em centavos (ex: 1990 para R$ 19,90)"
+          },
+          {
+            "name": "categoria_id",
+            "in": "formData",
+            "type": "integer",
+            "description": "ID da categoria"
+          },
+          {
+            "name": "produto_imagem",
+            "in": "formData",
+            "type": "file",
+            "description": "Nova imagem do produto"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Produto atualizado com sucesso",
+            "schema": {
+              "$ref": "#/definitions/Produto"
+            }
+          },
+          "400": {
+            "description": "Dados inválidos",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Não autorizado",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Produto não encontrado",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Produtos"],
+        "summary": "Excluir produto",
+        "description": "Remove um produto específico.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID do produto"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Produto excluído com sucesso"
+          },
+          "400": {
+            "description": "Produto não pode ser excluído",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Não autorizado",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Produto não encontrado",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/cliente": {
+      "get": {
+        "tags": ["Clientes"],
+        "summary": "Listar clientes",
+        "description": "Retorna todos os clientes cadastrados.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de clientes",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Cliente"
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Clientes"],
+        "summary": "Cadastrar cliente",
+        "description": "Cria um novo cliente.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Cliente"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Cliente criado com sucesso",
+            "schema": {
+              "$ref": "#/definitions/Cliente"
+            }
+          },
+          "400": {
+            "description": "Dados inválidos",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Não autorizado",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "CPF ou email já cadastrado",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/cliente/{id}": {
+      "get": {
+        "tags": ["Clientes"],
+        "summary": "Detalhes do cliente",
+        "description": "Retorna os detalhes de um cliente específico.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID do cliente"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalhes do cliente",
+            "schema": {
+              "$ref": "#/definitions/Cliente"
+            }
+          },
+          "401": {
+            "description": "Não autorizado",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Cliente não encontrado",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Clientes"],
+        "summary": "Atualizar cliente",
+        "description": "Atualiza os dados de um cliente específico.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID do cliente"
           },
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "produto_imagem": {
-                  "type": "string",
-                  "example": "imagem.png"
-                },
-                "descricao": {
-                  "type": "string",
-                  "example": "Descri\u00e7\u00e3o do produto"
-                },
-                "quantidade_estoque": {
-                  "type": "integer",
-                  "example": 10
-                },
-                "valor": {
-                  "type": "number",
-                  "example": 100.0
-                },
-                "categoria_id": {
-                  "type": "integer",
-                  "example": 1
-                }
+              "$ref": "#/definitions/ClienteUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cliente atualizado com sucesso",
+            "schema": {
+              "$ref": "#/definitions/Cliente"
+            }
+          },
+          "400": {
+            "description": "Dados inválidos",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Não autorizado",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Cliente não encontrado",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "CPF ou email já cadastrado",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/pedido": {
+      "get": {
+        "tags": ["Pedidos"],
+        "summary": "Listar pedidos",
+        "description": "Retorna todos os pedidos cadastrados.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cliente_id",
+            "in": "query",
+            "description": "Filtrar por cliente",
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de pedidos",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Pedido"
               }
+            }
+          },
+          "401": {
+            "description": "Não autorizado",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Pedidos"],
+        "summary": "Cadastrar pedido",
+        "description": "Cria um novo pedido.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PedidoCreate"
             }
           }
         ],
         "responses": {
           "201": {
-            "description": "Produto criado com sucesso"
+            "description": "Pedido criado com sucesso",
+            "schema": {
+              "$ref": "#/definitions/Pedido"
+            }
           },
           "400": {
-            "description": "Erro na requisi\u00e7\u00e3o"
+            "description": "Dados inválidos ou estoque insuficiente",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           },
           "401": {
-            "description": "N\u00e3o autorizado"
+            "description": "Não autorizado",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           },
-          "500": {
-            "description": "Erro interno do servidor"
+          "404": {
+            "description": "Cliente ou produto não encontrado",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           }
         }
       }
     },
-    "/clients": {
+    "/categoria": {
       "get": {
-        "summary": "Lista de Clientes",
-        "description": "Obt\u00e9m uma lista de todos os clientes cadastrados.",
+        "tags": ["Categorias"],
+        "summary": "Listar categorias",
+        "description": "Retorna todas as categorias cadastradas.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Lista de clientes retornada com sucesso.",
-            "content": {
-              "application/json": {
-                "example": [
-                  {
-                    "id": 1,
-                    "name": "Jo\u00e3o da Silva",
-                    "email": "joao.silva@example.com",
-                    "phone": "123456789"
-                  },
-                  {
-                    "id": 2,
-                    "name": "Maria Oliveira",
-                    "email": "maria.oliveira@example.com",
-                    "phone": "987654321"
-                  }
-                ]
+            "description": "Lista de categorias",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Categoria"
               }
+            }
+          },
+          "401": {
+            "description": "Não autorizado",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": ["Sistema"],
+        "summary": "Status da API",
+        "description": "Verifica o status da API e suas dependências.",
+        "responses": {
+          "200": {
+            "description": "Status da API",
+            "schema": {
+              "$ref": "#/definitions/Health"
+            }
+          },
+          "500": {
+            "description": "Erro ao verificar o status da API",
+            "schema": {
+              "$ref": "#/definitions/Error"
             }
           }
         }
       }
     }
   },
-  "securityDefinitions": {
-    "Bearer": {
-      "type": "apiKey",
-      "name": "authorization",
-      "in": "header",
-      "description": "Insira o token JWT no formato: Bearer {token}"
+  "definitions": {
+    "Usuario": {
+      "type": "object",
+      "required": ["nome", "email", "senha"],
+      "properties": {
+        "nome": {
+          "type": "string",
+          "example": "João Silva"
+        },
+        "email": {
+          "type": "string",
+          "example": "joao@email.com"
+        },
+        "senha": {
+          "type": "string",
+          "format": "password",
+          "example": "senha123"
+        }
+      }
+    },
+    "UsuarioResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "example": 1
+        },
+        "nome": {
+          "type": "string",
+          "example": "João Silva"
+        },
+        "email": {
+          "type": "string",
+          "example": "joao@email.com"
+        }
+      }
+    },
+    "UsuarioUpdate": {
+      "type": "object",
+      "properties": {
+        "nome": {
+          "type": "string",
+          "example": "João Silva"
+        },
+        "email": {
+          "type": "string",
+          "example": "joao@email.com"
+        },
+        "senha": {
+          "type": "string",
+          "format": "password",
+          "example": "nova_senha"
+        }
+      }
+    },
+    "Login": {
+      "type": "object",
+      "required": ["email", "senha"],
+      "properties": {
+        "email": {
+          "type": "string",
+          "example": "joao@email.com"
+        },
+        "senha": {
+          "type": "string",
+          "format": "password",
+          "example": "senha123"
+        }
+      }
+    },
+    "LoginResponse": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string",
+          "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        }
+      }
+    },
+    "Produto": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "example": 1
+        },
+        "descricao": {
+          "type": "string",
+          "example": "Smartphone XYZ"
+        },
+        "quantidade_estoque": {
+          "type": "integer",
+          "example": 10
+        },
+        "valor": {
+          "type": "integer",
+          "example": 129990
+        },
+        "categoria_id": {
+          "type": "integer",
+          "example": 2
+        },
+        "produto_imagem": {
+          "type": "string",
+          "example": "https://exemplo.com/imagens/smartphone.jpg"
+        }
+      }
+    },
+    "Cliente": {
+      "type": "object",
+      "required": ["nome", "email", "cpf"],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "example": 1
+        },
+        "nome": {
+          "type": "string",
+          "example": "Maria Santos"
+        },
+        "email": {
+          "type": "string",
+          "example": "maria@email.com"
+        },
+        "cpf": {
+          "type": "string",
+          "example": "529.982.247-25"
+        },
+        "cep": {
+          "type": "string",
+          "example": "01001-000"
+        },
+        "rua": {
+          "type": "string",
+          "example": "Praça da Sé"
+        },
+        "numero": {
+          "type": "string",
+          "example": "1"
+        },
+        "bairro": {
+          "type": "string",
+          "example": "Sé"
+        },
+        "cidade": {
+          "type": "string",
+          "example": "São Paulo"
+        },
+        "estado": {
+          "type": "string",
+          "example": "SP"
+        }
+      }
+    },
+    "ClienteUpdate": {
+      "type": "object",
+      "properties": {
+        "nome": {
+          "type": "string",
+          "example": "Maria Santos"
+        },
+        "email": {
+          "type": "string",
+          "example": "maria@email.com"
+        },
+        "cpf": {
+          "type": "string",
+          "example": "529.982.247-25"
+        },
+        "cep": {
+          "type": "string",
+          "example": "01001-000"
+        },
+        "rua": {
+          "type": "string",
+          "example": "Praça da Sé"
+        },
+        "numero": {
+          "type": "string",
+          "example": "1"
+        },
+        "bairro": {
+          "type": "string",
+          "example": "Sé"
+        },
+        "cidade": {
+          "type": "string",
+          "example": "São Paulo"
+        },
+        "estado": {
+          "type": "string",
+          "example": "SP"
+        }
+      }
+    },
+    "PedidoProduto": {
+      "type": "object",
+      "required": ["produto_id", "quantidade_produto"],
+      "properties": {
+        "produto_id": {
+          "type": "integer",
+          "example": 1
+        },
+        "quantidade_produto": {
+          "type": "integer",
+          "example": 2
+        }
+      }
+    },
+    "PedidoCreate": {
+      "type": "object",
+      "required": ["cliente_id", "pedido_produtos"],
+      "properties": {
+        "cliente_id": {
+          "type": "integer",
+          "example": 1
+        },
+        "observacao": {
+          "type": "string",
+          "example": "Entrega rápida"
+        },
+        "pedido_produtos": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PedidoProduto"
+          }
+        }
+      }
+    },
+    "Pedido": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "example": 1
+        },
+        "cliente_id": {
+          "type": "integer",
+          "example": 1
+        },
+        "observacao": {
+          "type": "string",
+          "example": "Entrega rápida"
+        },
+        "valor_total": {
+          "type": "integer",
+          "example": 299980
+        },
+        "pedido_produtos": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "example": 1
+              },
+              "pedido_id": {
+                "type": "integer",
+                "example": 1
+              },
+              "produto_id": {
+                "type": "integer",
+                "example": 1
+              },
+              "quantidade_produto": {
+                "type": "integer",
+                "example": 2
+              },
+              "valor_produto": {
+                "type": "integer",
+                "example": 129990
+              }
+            }
+          }
+        }
+      }
+    },
+    "Categoria": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "example": 1
+        },
+        "descricao": {
+          "type": "string",
+          "example": "Informática"
+        }
+      }
+    },
+    "Health": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "PDV API"
+        },
+        "version": {
+          "type": "string",
+          "example": "1.0.0"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["online", "partial", "offline"],
+          "example": "online"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-04-26T12:34:56.789Z"
+        },
+        "environment": {
+          "type": "string",
+          "example": "development"
+        },
+        "uptime": {
+          "type": "string",
+          "example": "3600 segundos"
+        },
+        "dependencies": {
+          "type": "object",
+          "properties": {
+            "database": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": ["ok", "error"],
+                  "example": "ok"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Conexão com o banco de dados estabelecida"
+                }
+              }
+            },
+            "storage": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": ["ok", "error"],
+                  "example": "ok"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Client de storage configurado corretamente"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Error": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "example": "error"
+        },
+        "message": {
+          "type": "string",
+          "example": "Descrição do erro"
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string",
+                "example": "email"
+              },
+              "message": {
+                "type": "string",
+                "example": "O email deve ser um email válido"
+              }
+            }
+          }
+        }
+      }
     }
-  },
-  "security": [
-    {
-      "Bearer": []
-    }
-  ]
+  }
 }
