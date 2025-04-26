@@ -320,8 +320,6 @@ Funcionalidades planejadas para o futuro:
 
 ## 👨‍💻 Autor
 
-<img src="https://avatars.githubusercontent.com/u/12345678?v=4" width="100px" style="border-radius: 50%;"/>
-
 **Marco Pezzote**
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-marcopezzote-blue?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/marcopezzote)
@@ -344,5 +342,5 @@ Este projeto está licenciado sob a licença MIT - veja o arquivo [LICENSE](LICE
 ---
 
 <p align="center">
-  Desenvolvido com ❤️ por Marco Pezzote
+  Desenvolvido por Marco Pezzote
 </p>
